@@ -2,7 +2,7 @@
 
 ---
 
-# Amplify UI for Android
+# Amplify UI for AndroidTEST
 
 [![GitHub](https://img.shields.io/github/license/aws-amplify/amplify-ui-android)](LICENSE)
 [![Discord](https://img.shields.io/discord/308323056592486420?logo=discord)](https://discord.gg/jWVbPfC)
