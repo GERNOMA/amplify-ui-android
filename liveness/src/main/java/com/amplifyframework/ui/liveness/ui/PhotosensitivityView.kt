@@ -83,13 +83,13 @@ internal fun PhotosensitivityView(infoClicked: () -> Unit) {
                 .padding(end = 6.dp)
                 .weight(1f)
         ) {
-            Text(
+            /*Text(
                 text = stringResource(
                     R.string.amplify_ui_liveness_get_ready_photosensitivity_title
                 ),
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onErrorContainer,
-            )
+            )*/
             Text(
                 text = stringResource(
                     R.string.amplify_ui_liveness_get_ready_photosensitivity_description

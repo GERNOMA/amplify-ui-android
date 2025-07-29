@@ -14,7 +14,7 @@
   ~ permissions and limitations under the License.
   -->
 
-<resources>
+<!--<resources>
     <string name="amplify_ui_liveness_get_ready_center_face_label">Center your face</string>
     <string name="amplify_ui_liveness_get_ready_photosensitivity_title">Photosensitivity warning</string>
     <string name="amplify_ui_liveness_get_ready_photosensitivity_description">This check flashes different colors. Use caution if you are photosensitive.</string>
@@ -32,4 +32,24 @@
     <string name="amplify_ui_liveness_challenge_connecting">Connecting</string>
     <string name="amplify_ui_liveness_challenge_verifying">Verifying</string>
     <string name="amplify_ui_liveness_challenge_a11y_cancel_content_description">Cancel Challenge</string>
+</resources>-->
+
+<resources>
+  <string name="amplify_ui_liveness_get_ready_center_face_label">Centra tu rostro</string>
+  <string name="amplify_ui_liveness_get_ready_photosensitivity_title">Advertencia sobre fotosensibilidad</string>
+  <string name="amplify_ui_liveness_get_ready_photosensitivity_description">Esta verificación muestra destellos de distintos colores. Ten cuidado si eres fotosensible.</string>
+  <string name="amplify_ui_liveness_get_ready_a11y_photosensitivity_icon_content_description">Información sobre fotosensibilidad</string>
+  <string name="amplify_ui_liveness_get_ready_photosensitivity_dialog_title">Advertencia sobre fotosensibilidad</string>
+  <string name="amplify_ui_liveness_get_ready_photosensitivity_dialog_description">Algunas personas pueden sufrir convulsiones epilépticas al exponerse a luces de colores. Ten precaución si tú o alguien de tu familia padece epilepsia.</string>
+  <string name="amplify_ui_liveness_get_ready_photosensitivity_dialog_dismiss">Entendido</string>
+  <string name="amplify_ui_liveness_get_ready_begin_check">Iniciar verificación de video</string>
+  <string name="amplify_ui_liveness_challenge_recording_indicator_label">REC</string>
+  <string name="amplify_ui_liveness_challenge_instruction_hold_face_during_freshness">Permanece inmóvil</string>
+  <string name="amplify_ui_liveness_challenge_instruction_move_face_further">Aléjate</string>
+  <string name="amplify_ui_liveness_challenge_instruction_move_face_closer">Acércate</string>
+  <string name="amplify_ui_liveness_challenge_instruction_move_face">Coloca el rostro frente a la cámara</string>
+  <string name="amplify_ui_liveness_challenge_instruction_multiple_faces_detected">Solo un rostro por verificación</string>
+  <string name="amplify_ui_liveness_challenge_connecting">Conectando</string>
+  <string name="amplify_ui_liveness_challenge_verifying">Verificando</string>
+  <string name="amplify_ui_liveness_challenge_a11y_cancel_content_description">Cancelar desafío</string>
 </resources>

@@ -290,11 +290,11 @@ internal fun ChallengeView(
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    if (livenessState.livenessSessionInfo.isFaceMovementAndLightChallenge()) {
+                    /*if (livenessState.livenessSessionInfo.isFaceMovementAndLightChallenge()) {
                         PhotosensitivityView {
                             showPhotosensitivityAlert.value = true
                         }
-                    }
+                    }*/
 
                     InstructionMessage(LivenessCheckState.Initial.withStartViewMessage())
                 }
