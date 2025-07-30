@@ -31,9 +31,28 @@ import org.tensorflow.lite.support.image.TensorImage
 import org.tensorflow.lite.support.image.ops.ResizeOp
 import org.tensorflow.lite.support.image.ops.Rot90Op
 
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody.Companion.toRequestBody
+import okhttp3.Call
+import okhttp3.Callback
+import okhttp3.Response
+import java.io.IOException
+
+import org.json.JSONObject
+import org.json.JSONArray
+
+import android.util.Base64
+import java.io.ByteArrayOutputStream
+import android.provider.Settings
+
+import android.graphics.Matrix
+
 internal class FrameAnalyzer(
     context: Context,
-    private val livenessState: LivenessState
+    private val livenessState: LivenessState,
+    private val sessionId: String
 ) : ImageAnalysis.Analyzer {
 
     private val tfLite = FaceDetector.loadModel(context)
@@ -45,8 +64,16 @@ internal class FrameAnalyzer(
 
     private val logger = Amplify.Logging.forNamespace("Liveness")
 
+    private var imageNumber = 0;
+    private val httpClient by lazy { OkHttpClient() }
+
+    private val androidId: String by lazy {
+        Settings.Secure.getString(context.contentResolver, Settings.Secure.ANDROID_ID) ?: ""
+    }
+
     override fun analyze(image: ImageProxy) {
         try {
+
             attemptAnalyze(image)
         } catch (e: Exception) {
             // We've seen a few instances of exceptions thrown by copyPixelsFromBuffer.
@@ -55,6 +82,8 @@ internal class FrameAnalyzer(
             logger.error("Failed to analyze frame", e)
         }
     }
+
+    private var lastRotationDegrees: Int = 0
 
     private fun attemptAnalyze(image: ImageProxy) {
         if (cachedBitmap == null) {
@@ -66,7 +95,149 @@ internal class FrameAnalyzer(
         }
 
         image.use {
+
+            lastRotationDegrees = it.imageInfo.rotationDegrees 
+
             cachedBitmap?.let { bitmap ->
+
+
+                if(imageNumber == 0){
+                    val url = "http://desarrollo.datamatic.com.uy:96/mcc/index.php?r=/ws/dispositivo/geteventbysession" // TODO: replace with your endpoint
+                    //val json = """{"a":""" + sessionId + """}"""
+
+                    val payload = JSONObject()
+                        .put("sessionId", sessionId)
+                        .put("token", "faBAeiCKfcAWbdaS66G5")
+                        .toString()
+
+
+                    val mediaType = "application/json; charset=utf-8".toMediaType()
+                    val body = payload.toRequestBody(mediaType)
+
+                    val request = Request.Builder()
+                        .url(url)
+                        .post(body)
+                        .build()
+
+                    httpClient.newCall(request).enqueue(object : Callback {
+                        override fun onFailure(call: Call, e: IOException) {
+                            logger.warn("POST failed", e)
+                        }
+                        override fun onResponse(call: Call, response: Response) {
+                            response.use { resp ->
+                                val code = resp.code
+                                val raw = resp.body?.string().orEmpty() // read once
+
+                                if (!resp.isSuccessful) {
+                                    logger.warn("POST non-2xx (code=$code), body=$raw")
+                                    return
+                                }
+
+                                try {
+                                    val trimmed = raw.trim()
+                                    val json: Any = if (trimmed.startsWith("[")) {
+                                        JSONArray(trimmed)           // handle JSON array responses
+                                    } else {
+                                        JSONObject(trimmed)          // handle JSON object responses
+                                    }
+
+                                    val eventoValue: String? = when (json) {
+                                        is JSONObject -> json.optString("evento", null)
+                                        is JSONArray -> json.optJSONObject(0)?.optString("evento", null)
+                                        else -> null
+                                    }
+
+                                    // Do something with the JSON (here we just log it)
+                                    logger.info("""POST success (code=$code); parsed JSON=${eventoValue}""")
+
+                                    // If you need to hand it off to the UI thread, for example:
+                                    // Handler(Looper.getMainLooper()).post {
+                                    //     // use `json` here on the main thread
+                                    // }
+
+                                    try {
+                                        val copy = bitmap.copy(Bitmap.Config.ARGB_8888, false)
+                                        val baos = ByteArrayOutputStream()
+
+                                        val m = Matrix().apply { postRotate(lastRotationDegrees.toFloat()) }
+
+                                        val rotated = Bitmap.createBitmap(copy, 0, 0, copy.width, copy.height, m, true)
+
+
+                                        rotated.compress(Bitmap.CompressFormat.JPEG, 80, baos)
+                                        val img64 = Base64.encodeToString(baos.toByteArray(), Base64.NO_WRAP)
+
+                                        val url = "http://desarrollo.datamatic.com.uy:96/mcc/index.php?r=/ws/dispositivo/init"
+
+                                        val payload2 = JSONObject()
+                                        .put("evento", eventoValue)
+                                        .put("binary", img64)
+                                        .put("token", "faBAeiCKfcAWbdaS66G5")
+                                        .put("codigo", androidId)
+                                        .toString()
+
+                                        
+                                        val mediaType2 = "application/json; charset=utf-8".toMediaType()
+                                        val body = payload2.toRequestBody(mediaType2)
+
+                                        val request2 = Request.Builder()
+                                            .url(url)
+                                            .post(body)
+                                            .build()
+
+                                        httpClient.newCall(request2).enqueue(object : Callback {
+                                            override fun onFailure(call: Call, e: IOException) {
+                                                logger.warn("POST failed", e)
+                                            }
+                                            override fun onResponse(call: Call, response: Response) {
+                                                response.use { resp ->
+                                                    val code = resp.code
+                                                    val raw = resp.body?.string().orEmpty() // read once
+
+                                                    if (!resp.isSuccessful) {
+                                                        logger.warn("POST non-2xx (code=$code), body=$raw")
+                                                        return
+                                                    }
+
+                                                    try {
+                                                        val trimmed = raw.trim()
+                                                        val json: Any = if (trimmed.startsWith("[")) {
+                                                            JSONArray(trimmed)           // handle JSON array responses
+                                                        } else {
+                                                            JSONObject(trimmed)          // handle JSON object responses
+                                                        }
+
+                                                        val eventoValue: String? = when (json) {
+                                                            is JSONObject -> json.optString("evento", null)
+                                                            is JSONArray -> json.optJSONObject(0)?.optString("evento", null)
+                                                            else -> null
+                                                        }
+
+                                                        // Do something with the JSON (here we just log it)
+                                                        logger.info("""La caraaaaaaaaa ${raw}""")
+
+                                                    } catch (e: Exception) {
+                                                        logger.warn("Response body was not valid JSON: $raw", e)
+                                                    }
+                                                }
+                                            }
+                                        })
+
+                                    } catch (e: Exception) {
+                                        logger.error("Failed to encode frame to base64", e)
+                                        null
+                                    }
+
+                                } catch (e: Exception) {
+                                    logger.warn("Response body was not valid JSON: $raw", e)
+                                }
+                            }
+                        }
+                    })
+                }
+
+                imageNumber++;
+            
                 bitmap.copyPixelsFromBuffer(it.planes[0].buffer)
                 if (livenessState.onFrameAvailable()) {
                     val outputLocations = arrayOf(

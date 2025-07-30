@@ -102,7 +102,7 @@ internal class LivenessCoordinator(
         setTargetResolution(TARGET_RESOLUTION_SIZE)
     }.build()
 
-    private val analyzer = FrameAnalyzer(context, livenessState)
+    private val analyzer = FrameAnalyzer(context, livenessState, sessionId)
 
     private val analysis = ImageAnalysis.Builder().apply {
         Camera2Interop.Extender(this).apply {

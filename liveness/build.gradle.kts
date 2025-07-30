@@ -64,4 +64,6 @@ dependencies {
     coreLibraryDesugaring(libs.android.desugar)
 
     testImplementation(projects.testing)
+
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
 }

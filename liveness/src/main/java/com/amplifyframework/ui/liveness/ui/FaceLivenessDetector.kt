@@ -299,7 +299,9 @@ internal fun ChallengeView(
                     InstructionMessage(LivenessCheckState.Initial.withStartViewMessage())
                 }
 
-                Box(
+                livenessState.onStartViewComplete()
+
+                /*Box(
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
                         .fillMaxWidth()
@@ -314,7 +316,7 @@ internal fun ChallengeView(
                     ) {
                         Text(stringResource(R.string.amplify_ui_liveness_get_ready_begin_check))
                     }
-                }
+                }*/
 
                 if (showPhotosensitivityAlert.value) {
                     PhotosensitivityAlert {
@@ -357,7 +359,7 @@ internal fun ChallengeView(
                     }
                 }
 
-                livenessState.faceGuideRect?.let {
+                /*livenessState.faceGuideRect?.let {
                     RecordingIndicator(
                         modifier = Modifier
                             .align(Alignment.TopStart)
@@ -374,7 +376,7 @@ internal fun ChallengeView(
                         FaceLivenessDetectionException.UserCancelledException(),
                         true
                     )
-                }
+                }*/
 
                 Box(
                     modifier = Modifier
